@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>tap-raser</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <!--<script src="/socket.io/socket.io.js"></script>-->
+    <script src="three.min.js"></script>
+    <script>
+        var scene=new THREE.Scene();
+
+        //var camera=new THREE.OrthographicCamera(-5,5,5,-5,1,100);
+        var camera=new THREE.PerspectiveCamera(45,1,1,100);
+        camera.position.set(0,0,10);
+
+        var renderer=new THREE.WebGLRenderer();
+        renderer.setSize(500,500);
+        renderer.setClearColor(0xeeeeee);
+        document.body.appendChild(renderer.domElement);
+
+        var geometry=new THREE.SphereGeometry(0.5,100,100);
+        var material=new THREE.MeshLambertMaterial({color:0xff0000});
+        var ball=new THREE.Mesh(geometry,material);
+        
+        var light=new THREE.AmbientLight(0xeeeeee);
+        var light = new THREE.SpotLight(0xffffff, 2, 100,Math.PI / 6);
+        light.position.set(0, 0, 2);
+        light.target=ball;
+
+        scene.add(light);
+        scene.add(ball);
+        renderer.render(scene,camera);
+                
+        document.onkeydown=function(e_keydown){
+            new Promise(function(resolve,reject){
+                document.onkeyup=function(e_keyup){
+                    if(e_keydown.keyCode===e_keyup.keyCode){
+                        switch(e_keydown.keyCode){
+                            case 38:
+                                //socket.emit('up');
+                                ball.position.y+=0.1;
+                                break;
+                            case 40:
+                                //socket.emit('down');
+                                ball.position.y-=0.1;
+                                break;
+                            case 37:
+                                //socket.emit('left');
+                                ball.position.x-=0.1;
+                                break;
+                            case 39:
+                                //socket.emit('right');
+                                ball.position.x+=0.1;
+                                break;
+                        }
+                        renderer.render(scene,camera);
+                        resolve();
+                    }
+                }
+            });
+        }
+        
+        // var socket=io.connect();
+        // socket.on('position',function(position){
+        //     ball.position.x=position.x;
+        //     ball.position.y=position.y;
+        //     ball.position.z=position.z;
+        //     renderer.render(scene,camera);
+        // });
+    </script>
+</body>
+</html>
