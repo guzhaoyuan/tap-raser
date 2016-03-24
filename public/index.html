@@ -13,54 +13,55 @@
 </head>
 <body>
     <!--<script src="/socket.io/socket.io.js"></script>-->
-    <script src="three.min.js"></script>
+    <script src="js/three.min.js"></script>
     <script>
         var scene=new THREE.Scene();
 
-        var camera=new THREE.OrthographicCamera(-5,5,5,-5,1,100);
-        //var camera=new THREE.PerspectiveCamera(45,1,1,100);
-        camera.position.set(0,0,10);
+        //var camera=new THREE.OrthographicCamera(-5,5,5,-5,1,100);
+        var camera=new THREE.PerspectiveCamera(45,1,1,100);
+        camera.position.set(0,0,9.5);
+        //camera.lookAt(new THREE.Vector3(0, 0, 0));
 
         var renderer=new THREE.WebGLRenderer();
-        renderer.setSize(500,500);
+        renderer.setSize(600,600);
         renderer.setClearColor(0xeeeeee);
         document.body.appendChild(renderer.domElement);
+        renderer.shadowMap.enabled = true;
         
-        
-        var texture=new THREE.TextureLoader().load('./zero.jpg',function(){
+        var ball;
+        var ballRadius=0.5//球的半径
+        var loader = new THREE.JSONLoader();
+        loader.load( 'res/ball.json', function ( geometry ,materials) {
+            ball=new THREE.Mesh(geometry,new THREE.MeshFaceMaterial(materials));
+            scene.add( ball);
+            ball.castShadow = true;
+            ball.scale.set(ballRadius,ballRadius,ballRadius);
             renderer.render(scene,camera);
         });
-        var geometry=new THREE.SphereGeometry(0.5,10,10);
-        var geometry=new THREE.BoxGeometry(1,1,1);
-        var material=new THREE.MeshLambertMaterial({map:texture});
-        var ball=new THREE.Mesh(geometry,material);
-        ball.matrixAutoUpdate = false; 
         
         
-        
-        
-        var back=new THREE.TextureLoader().load('./back.jpg',function(){
+        var grass=new THREE.TextureLoader().load('./res/grass.jpg',function(){
             renderer.render(scene,camera);
         });
-        back.wrapS = back.wrapT = THREE.RepeatWrapping;
-        back.repeat.set(4,4);
         var planegeo=new THREE.PlaneGeometry(10,10);
-        var planematerial=new THREE.MeshLambertMaterial({map:back});
+        var planematerial=new THREE.MeshLambertMaterial({map:grass});
         var plane=new THREE.Mesh(planegeo,planematerial);
-        plane.position.z=-10;
+        plane.position.z=-0.5;
+        plane.receiveShadow = true;
         
-        //var light=new THREE.AmbientLight(0xeeeeee);
-        var light = new THREE.SpotLight(0xffffff, 2, 100,Math.PI / 6);
-        light.position.set(0, 0, 8);
-        light.target.position.set(0,0,0);
-        //light.target=ball;
-
-        scene.add(light);
-        scene.add(ball);
+        var lightShadow = new THREE.DirectionalLight();
+        lightShadow.position.set(2, -3, 4);
+        lightShadow.castShadow = true;
+        
+        var lightBackground = new THREE.DirectionalLight(0xffffff,0.5);
+        lightBackground.position.set(0, 0, 1);
+        
         scene.add(plane);
+        scene.add(lightShadow);
+        scene.add(lightBackground);
         renderer.render(scene,camera);
         
-        var distance=0.1;                
+        var distance=0.25;//每次按键移动的距离
         document.onkeydown=function(e_keydown){
             new Promise(function(resolve,reject){
                 document.onkeyup=function(e_keyup){
@@ -89,8 +90,15 @@
             });
         }
         
+        var line=Math.tan(Math.PI/8)*10;//边界半径
         function roll(position){
-            var step=0.01;//每次移动的距离
+            if(Math.abs(ball.position.x+position.x)>line||Math.abs(ball.position.y+position.y)>line){
+                alert("game over");
+                return;
+            }
+                
+            
+            var step=0.01;//每一帧移动的距离
             var x=position.x;
             var y=position.y;
             var dis=Math.sqrt(x*x+y*y);
@@ -98,7 +106,7 @@
             var dx=x/times;
             var dy=y/times;
             
-            var degree=step/0.5;
+            var degree=step/ballRadius;
 
             var quaternion = new THREE.Quaternion();
             quaternion=ball.quaternion;//获取物体的四元数
@@ -127,7 +135,6 @@
             }
             draw();
         }
-        //roll({x:-2,y:-2},{x:2,y:2});
         
         // var socket=io.connect();
         // socket.on('position',function(position){
