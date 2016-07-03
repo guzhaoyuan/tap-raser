@@ -8,3 +8,8 @@
 node.js服务器监听
 socket.io建立连接
 three.js的本地渲染
+
+##说明
+前端部分基本完成，由于现阶段只是静态页面，与后端的通信尚未完成，因此可以通过开启静态服务器的方式查看效果。
+
+例如，可以在终端切换到public目录下，运行`python -m SimpleHTTPServer 3000`，然后在浏览器打开'localhost:3000'。

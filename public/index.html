@@ -15,19 +15,23 @@
     <!--<script src="/socket.io/socket.io.js"></script>-->
     <script src="js/three.min.js"></script>
     <script>
+        //添加场景
         var scene=new THREE.Scene();
-
+        
+        //添加照相机并设置参数
         //var camera=new THREE.OrthographicCamera(-5,5,5,-5,1,100);
         var camera=new THREE.PerspectiveCamera(45,1,1,100);
         camera.position.set(0,0,9.5);
         //camera.lookAt(new THREE.Vector3(0, 0, 0));
 
+        //添加渲染器并设置参数
         var renderer=new THREE.WebGLRenderer();
         renderer.setSize(600,600);
         renderer.setClearColor(0xeeeeee);
         document.body.appendChild(renderer.domElement);
         renderer.shadowMap.enabled = true;
         
+        //加载足球文件
         var ball;
         var ballRadius=0.5//球的半径
         var loader = new THREE.JSONLoader();
@@ -39,7 +43,7 @@
             renderer.render(scene,camera);
         });
         
-        
+        //导入草皮背景照片
         var grass=new THREE.TextureLoader().load('./res/grass.jpg',function(){
             renderer.render(scene,camera);
         });
@@ -49,6 +53,7 @@
         plane.position.z=-0.5;
         plane.receiveShadow = true;
         
+        //设置光照
         var lightShadow = new THREE.DirectionalLight();
         lightShadow.position.set(2, -3, 4);
         lightShadow.castShadow = true;
@@ -61,6 +66,7 @@
         scene.add(lightBackground);
         renderer.render(scene,camera);
         
+        //设置键盘事件，按键触发roll函数
         var distance=0.25;//每次按键移动的距离
         document.onkeydown=function(e_keydown){
             new Promise(function(resolve,reject){
@@ -89,7 +95,8 @@
                 }
             });
         }
-        
+
+        //roll函数，物体的空间位置通过四元数设置
         var line=Math.tan(Math.PI/8)*10;//边界半径
         function roll(position){
             if(Math.abs(ball.position.x+position.x)>line||Math.abs(ball.position.y+position.y)>line){
@@ -120,6 +127,8 @@
             
 
             var id;
+
+            //设置渲染帧数，使用requestAnimationFrame函数渲染
             function draw(){
                 times--;
                 
